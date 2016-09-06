@@ -1,11 +1,11 @@
-#include "StorkApp.h"
+#include "PoissonApp.h"
 #include "Moose.h"
 #include "AppFactory.h"
 #include "ModulesApp.h"
 #include "MooseSyntax.h"
 
 template<>
-InputParameters validParams<StorkApp>()
+InputParameters validParams<PoissonApp>()
 {
   InputParameters params = validParams<MooseApp>();
 
@@ -16,40 +16,40 @@ InputParameters validParams<StorkApp>()
   return params;
 }
 
-StorkApp::StorkApp(InputParameters parameters) :
+PoissonApp::PoissonApp(InputParameters parameters) :
     MooseApp(parameters)
 {
   Moose::registerObjects(_factory);
   ModulesApp::registerObjects(_factory);
-  StorkApp::registerObjects(_factory);
+  PoissonApp::registerObjects(_factory);
 
   Moose::associateSyntax(_syntax, _action_factory);
   ModulesApp::associateSyntax(_syntax, _action_factory);
-  StorkApp::associateSyntax(_syntax, _action_factory);
+  PoissonApp::associateSyntax(_syntax, _action_factory);
 }
 
-StorkApp::~StorkApp()
+PoissonApp::~PoissonApp()
 {
 }
 
 // External entry point for dynamic application loading
-extern "C" void StorkApp__registerApps() { StorkApp::registerApps(); }
+extern "C" void PoissonApp__registerApps() { PoissonApp::registerApps(); }
 void
-StorkApp::registerApps()
+PoissonApp::registerApps()
 {
-  registerApp(StorkApp);
+  registerApp(PoissonApp);
 }
 
 // External entry point for dynamic object registration
-extern "C" void StorkApp__registerObjects(Factory & factory) { StorkApp::registerObjects(factory); }
+extern "C" void PoissonApp__registerObjects(Factory & factory) { PoissonApp::registerObjects(factory); }
 void
-StorkApp::registerObjects(Factory & factory)
+PoissonApp::registerObjects(Factory & factory)
 {
 }
 
 // External entry point for dynamic syntax association
-extern "C" void StorkApp__associateSyntax(Syntax & syntax, ActionFactory & action_factory) { StorkApp::associateSyntax(syntax, action_factory); }
+extern "C" void PoissonApp__associateSyntax(Syntax & syntax, ActionFactory & action_factory) { PoissonApp::associateSyntax(syntax, action_factory); }
 void
-StorkApp::associateSyntax(Syntax & /*syntax*/, ActionFactory & /*action_factory*/)
+PoissonApp::associateSyntax(Syntax & /*syntax*/, ActionFactory & /*action_factory*/)
 {
 }

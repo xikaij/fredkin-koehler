@@ -31,19 +31,19 @@ ADDITIONAL_LIBS 	:= -L$(CPPUNIT_DIR)/lib -lcppunit
 
 # dep apps
 APPLICATION_DIR    := $(CURRENT_DIR)/..
-APPLICATION_NAME   := stork
+APPLICATION_NAME   := poisson
 include            $(FRAMEWORK_DIR)/app.mk
 
 APPLICATION_DIR    := $(CURRENT_DIR)
-APPLICATION_NAME   := stork-unit
+APPLICATION_NAME   := poisson-unit
 BUILD_EXEC         := yes
 DEP_APPS    ?= $(shell $(FRAMEWORK_DIR)/scripts/find_dep_apps.py $(APPLICATION_NAME))
 include $(FRAMEWORK_DIR)/app.mk
 
-# Find all the STORK unit test source files and include their dependencies.
-stork-unit_srcfiles := $(shell find $(CURRENT_DIR) -name "*.C")
-stork-unit_deps := $(patsubst %.C, %.$(obj-suffix).d, $(stork-unit_srcfiles))
--include $(stork-unit_deps)
+# Find all the POISSON unit test source files and include their dependencies.
+poisson-unit_srcfiles := $(shell find $(CURRENT_DIR) -name "*.C")
+poisson-unit_deps := $(patsubst %.C, %.$(obj-suffix).d, $(poisson-unit_srcfiles))
+-include $(poisson-unit_deps)
 
 ###############################################################################
 # Additional special case targets should be added here

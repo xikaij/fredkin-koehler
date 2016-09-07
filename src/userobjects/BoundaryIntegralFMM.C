@@ -63,7 +63,7 @@ BoundaryIntegralFMM::execute()
   // have only one system
   ExplicitSystem & system_bs = bs.get_system<ExplicitSystem> (0);
 
-  std::vector<Number> global_potential(system_bs.solution->size()/2);
+  std::vector<Number> global_potential(system_bs.solution->size());
 
   // Petsc performance log for boundary integral calculation
   // other than VecScatter
@@ -74,25 +74,20 @@ BoundaryIntegralFMM::execute()
   // A reference to the DofMap object for this system.
   const DofMap & dof_map_bs = system_bs.get_dof_map();
 
-  // Define dof_indices holder for phi1
-  std::vector<dof_id_type> dof_indices_phi1;
+  // Define dof_indices holder for phi2
+  std::vector<dof_id_type> dof_indices_phi2;
 
-  // Get system number and variable numbers,
-  // requires phi1 is the 1st variable, and phi2 is the 2nd variable
+  // Get system number and variable numbers
   const unsigned short int        system_number = system_bs.number();
-  const unsigned short int variable_number_phi1 = 0; // phi1
-  const unsigned short int variable_number_phi2 = 1; // phi2
+  const unsigned short int variable_number_phi2 = 0; // phi2
 
-  // Get a constant reference to variable phi1 and phi2, get their number of components
-  const Variable &                variable_phi1 = system_bs.variable(variable_number_phi1);
-  const unsigned short int   variable_comp_phi1 = variable_phi1.n_components();
-
+  // Get a constant reference to variable phi2, get their number of components
   const Variable &                variable_phi2 = system_bs.variable(variable_number_phi2);
   const unsigned short int   variable_comp_phi2 = variable_phi2.n_components();
 
   // Get a constant reference to the Finite Element type
   // for the first (and only) variable in the system.
-  FEType bs_type = dof_map_bs.variable_type(variable_number_phi1);
+  FEType bs_type = dof_map_bs.variable_type(variable_number_phi2);
 
   // Build a Finite Element object of the specified type. Since the
   // FEBase::build() member dynamically creates memory we will
@@ -211,11 +206,11 @@ BoundaryIntegralFMM::execute()
       ny = ny / nunit;
       nz = nz / nunit;
 
-      // Global dof_indices for this element and variable phi1
-      dof_map_bs.dof_indices(elem_bs, dof_indices_phi1, variable_number_phi1);
-      // Number of dof indices for phi1 on this element
-      // used to loop through all nodes to calculate phi1 on quadrature point
-      const unsigned int n_phi1_dofs = dof_indices_phi1.size();
+      // Global dof_indices for this element and variable phi2
+      dof_map_bs.dof_indices(elem_bs, dof_indices_phi2, variable_number_phi2);
+      // Number of dof indices for phi2 on this element
+      // used to loop through all nodes to calculate phi2 on quadrature point
+      const unsigned int n_phi2_dofs = dof_indices_phi2.size();
 
       // Loop over the face quadrature points for integration.
       for (unsigned int qp=0; qp<qface.n_points(); qp++){
@@ -224,13 +219,13 @@ BoundaryIntegralFMM::execute()
           const Real y_qp = qface_point[qp](1);
           const Real z_qp = qface_point[qp](2);
  
-          // Value of phi1 at quadrature point
-          Real phi1_qp = 0.0;
-          for (unsigned int l=0; l < n_phi1_dofs; l++){
-              phi1_qp += phi[l][qp] * (*system_bs.current_local_solution)(dof_indices_phi1[l]);
+          // Value of phi2 at quadrature point
+          Real phi2_qp = 0.0;
+          for (unsigned int l=0; l < n_phi2_dofs; l++){
+              phi2_qp += phi[l][qp] * (*system_bs.current_local_solution)(dof_indices_phi2[l]);
           }
 
-          Real phys = JxW_face[qp]*phi1_qp;
+          Real phys = JxW_face[qp]*phi2_qp;
 
           particlePosition.setPosition( x_qp , y_qp , z_qp );
           // Insert into trees             particleType    index      physicalValue  pot forces
@@ -326,17 +321,17 @@ BoundaryIntegralFMM::execute()
       const Node* node_bs = *nd;
  
       // Dof_index for each node
-      const dof_id_type node_dof_index_phi1 = node_bs->dof_number(system_number,
-                                                                  variable_number_phi1,
-                                                                  variable_comp_phi1-1);
- 
       const dof_id_type node_dof_index_phi2 = node_bs->dof_number(system_number,
                                                                   variable_number_phi2,
                                                                   variable_comp_phi2-1);
+
+      // Integral value, only works for smooth surface,
+      // minus SIGN get (R_target-R_source) in ScalFMM
+      Real bi_value = -global_potential[node_bs->id()]/PI_4
+                      -1./2.*(*system_bs.solution)(node_dof_index_phi2);
  
-      // Boundary integral value to solution vector, minus SIGN get (R_target-R_source) in ScalFMM
-      system_bs.solution->set(node_dof_index_phi2, -global_potential[node_bs->id()]/PI_4
-                                                   -1./2.*(*system_bs.solution)(node_dof_index_phi1));
+      // Boundary integral value to solution vector
+      system_bs.solution->set(node_dof_index_phi2, bi_value);
  
       indexPart += 1;
   }

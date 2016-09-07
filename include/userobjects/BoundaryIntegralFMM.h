@@ -11,7 +11,7 @@ InputParameters validParams<BoundaryIntegralFMM>();
 class BoundaryIntegralFMM : public GeneralUserObject
 {
 public:
-  BoundaryIntegralFMM(InputParameters parameters);
+  BoundaryIntegralFMM(const std::string & name, InputParameters parameters);
 
   virtual void initialize();
 

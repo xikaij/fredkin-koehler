@@ -4,6 +4,9 @@
 #include "ModulesApp.h"
 #include "MooseSyntax.h"
 
+// Poisson Includes
+#include "BoundaryIntegralFMM.h"
+
 template<>
 InputParameters validParams<PoissonApp>()
 {

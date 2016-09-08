@@ -21,8 +21,8 @@
 #include "Kernels/P2P/FP2PParticleContainerIndexed.hpp"
 #include "Core/FFmmAlgorithmTsm.hpp"
 
-// infinitepoisson headers
-#include "constants.h"
+// Global consts
+const double PI_4 = 4.*M_PI;
 
 using namespace libMesh;
 

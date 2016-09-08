@@ -48,6 +48,7 @@ extern "C" void PoissonApp__registerObjects(Factory & factory) { PoissonApp::reg
 void
 PoissonApp::registerObjects(Factory & factory)
 {
+  registerUserObject(BoundaryIntegralFMM);
 }
 
 // External entry point for dynamic syntax association

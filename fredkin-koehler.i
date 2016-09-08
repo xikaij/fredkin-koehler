@@ -11,10 +11,22 @@
   [../]
 []
 
+[Kernels]
+  [./diff]
+    type = Diffusion
+    variable = phi2
+  [../]
+[]
+
 [UserObjects]
   [./bifmm]
     type = BoundaryIntegralFMM
     variable = phi2
+    cx = 0.0
+    cy = 0.0
+    cz = 0.0
+    boxWidth = 2.1
+    TreeHeight = 4
     execute_on = timestep_begin
   [../]
 []

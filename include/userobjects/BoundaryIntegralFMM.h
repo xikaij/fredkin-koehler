@@ -2,8 +2,9 @@
 #define BOUNDARYINTEGRALFMM_H
 
 #include "GeneralUserObject.h"
+#include "MooseMesh.h"
 
-class BoundaryIntaegralFMM;
+class BoundaryIntegralFMM;
 
 template<>
 InputParameters validParams<BoundaryIntegralFMM>();
@@ -11,16 +12,13 @@ InputParameters validParams<BoundaryIntegralFMM>();
 class BoundaryIntegralFMM : public GeneralUserObject
 {
 public:
-  BoundaryIntegralFMM(const std::string & name, InputParameters parameters);
+  BoundaryIntegralFMM(const InputParameters & parameters);
 
   virtual void initialize();
 
   virtual void execute();
 
   virtual void finalize();
-
-protected:
-
 };
 
 #endif

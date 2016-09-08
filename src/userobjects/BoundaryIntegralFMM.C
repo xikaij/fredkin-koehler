@@ -32,27 +32,31 @@ InputParameters validParams<BoundaryIntegralFMM>()
   InputParameters params = validParams<GeneralUserObject>();
 
   params.set<std::string>("built_by_action") = "add_user_object";
+  params.addRequiredParam<Real>("cx","x-coordinate for the center of FMM box");
+  params.addRequiredParam<Real>("cy","y-coordinate for the center of FMM box");
+  params.addRequiredParam<Real>("cz","z-coordinate for the center of FMM box");
+  params.addRequiredParam<Real>("boxWidth","Width of the FMM cubic box");
+  params.addRequiredParam<unsigned int>("TreeHeight","Octree height or level");
 
   return params;
 }
 
-BoundaryIntegralFMM::BoundaryIntegralFMM(const std::string & name, InputParameters parameters) :
-    GeneralUserObject(name, parameters)
+BoundaryIntegralFMM::BoundaryIntegralFMM(const InputParameters & parameters) :
+    GeneralUserObject(parameters)
 {
 }
 
 void
 BoundaryIntegralFMM::initialize()
 {
-
 }
 
 void
 BoundaryIntegralFMM::execute()
 {
   // Get a constant reference to the mesh object
-  const MooseMesh & mesh_bs = _subproblem.mesh();
- 
+  const MeshBase & mesh_bs = _subproblem.mesh().getMesh();
+
   // The element dimension of boundary mesh
   const unsigned int dim = mesh_bs.mesh_dimension();
 
@@ -106,7 +110,13 @@ BoundaryIntegralFMM::execute()
   typedef double FReal;
   // In order to be used in a template, a constant value must be initialized
   const unsigned int ORDER = 5;
+  const Real cx = getParam<Real>("cx");
+  const Real cy = getParam<Real>("cy");
+  const Real cz = getParam<Real>("cz");
   FPoint<FReal> centerOfBox( cx, cy, cz );
+  const Real boxWidth = getParam<Real>("boxWidth");
+  const unsigned int SubTreeHeight = 1;
+  const unsigned int TreeHeight = getParam<unsigned int>("TreeHeight");
 
   // Particle, Leaf, Cell, Octree
   typedef FP2PParticleContainerIndexed<FReal>                 ContainerClass;
@@ -129,16 +139,10 @@ BoundaryIntegralFMM::execute()
   const   MatrixKernelClass2 MatrixKernel2;
   const   MatrixKernelClass3 MatrixKernel3;
 
-  // Timer
-  FTic counter;
-
   // Octrees 
   OctreeClass tree1(TreeHeight,SubTreeHeight,boxWidth,centerOfBox);
   OctreeClass tree2(TreeHeight,SubTreeHeight,boxWidth,centerOfBox);
   OctreeClass tree3(TreeHeight,SubTreeHeight,boxWidth,centerOfBox);
-
-  // Ready to insert particles
-  counter.tic();
 
   FPoint<FReal> particlePosition;
   FSize indexPart = 0;
@@ -240,8 +244,7 @@ BoundaryIntegralFMM::execute()
 
   const FSize nbTotal = indexPart;
 
-  counter.tac();
-  std::cout << "Done  " << "(" << counter.elapsed() << "). " << std::endl
+  std::cout << "Particle insertion into octree done." << std::endl
             << nbTargets << " target particles, " << nbTotal-nbTargets << " source particles." << std::endl;
 
   // Apply kernels, here performs the compression and set M2L operators
@@ -258,13 +261,9 @@ BoundaryIntegralFMM::execute()
   FmmClass2 algorithm2(&tree2, &kernel2);
   FmmClass3 algorithm3(&tree3, &kernel3);
 
-  std::cout << "Performing D(1/r)/Dn kernel TSM calculation ..." << std::endl;
-  counter.tic();
   algorithm1.execute();
   algorithm2.execute();
   algorithm3.execute();
-  counter.tac();
-  std::cout << "FMM calculation done  " << "(" << counter.elapsed() << ")." << std::endl;
 
   // Store particle information
   struct TestParticle{
@@ -343,5 +342,4 @@ BoundaryIntegralFMM::execute()
 void
 BoundaryIntegralFMM::finalize()
 {
-
 }

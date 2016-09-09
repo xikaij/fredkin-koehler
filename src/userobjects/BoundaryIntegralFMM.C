@@ -42,7 +42,12 @@ InputParameters validParams<BoundaryIntegralFMM>()
 }
 
 BoundaryIntegralFMM::BoundaryIntegralFMM(const InputParameters & parameters) :
-    GeneralUserObject(parameters)
+    GeneralUserObject(parameters),
+    _cx(getParam<Real>("cx")),
+    _cy(getParam<Real>("cy")),
+    _cz(getParam<Real>("cz")),
+    _boxWidth(getParam<Real>("boxWidth")),
+    _TreeHeight(getParam<unsigned int>("TreeHeight"))
 {
 }
 
@@ -110,13 +115,8 @@ BoundaryIntegralFMM::execute()
   typedef double FReal;
   // In order to be used in a template, a constant value must be initialized
   const unsigned int ORDER = 5;
-  const Real cx = getParam<Real>("cx");
-  const Real cy = getParam<Real>("cy");
-  const Real cz = getParam<Real>("cz");
-  FPoint<FReal> centerOfBox( cx, cy, cz );
-  const Real boxWidth = getParam<Real>("boxWidth");
+  FPoint<FReal> centerOfBox( _cx, _cy, _cz );
   const unsigned int SubTreeHeight = 1;
-  const unsigned int TreeHeight = getParam<unsigned int>("TreeHeight");
 
   // Particle, Leaf, Cell, Octree
   typedef FP2PParticleContainerIndexed<FReal>                 ContainerClass;
@@ -140,9 +140,9 @@ BoundaryIntegralFMM::execute()
   const   MatrixKernelClass3 MatrixKernel3;
 
   // Octrees 
-  OctreeClass tree1(TreeHeight,SubTreeHeight,boxWidth,centerOfBox);
-  OctreeClass tree2(TreeHeight,SubTreeHeight,boxWidth,centerOfBox);
-  OctreeClass tree3(TreeHeight,SubTreeHeight,boxWidth,centerOfBox);
+  OctreeClass tree1(_TreeHeight,SubTreeHeight,_boxWidth,centerOfBox);
+  OctreeClass tree2(_TreeHeight,SubTreeHeight,_boxWidth,centerOfBox);
+  OctreeClass tree3(_TreeHeight,SubTreeHeight,_boxWidth,centerOfBox);
 
   FPoint<FReal> particlePosition;
   FSize indexPart = 0;
@@ -248,9 +248,9 @@ BoundaryIntegralFMM::execute()
             << nbTargets << " target particles, " << nbTotal-nbTargets << " source particles." << std::endl;
 
   // Apply kernels, here performs the compression and set M2L operators
-  KernelClass1 kernel1(TreeHeight,boxWidth,centerOfBox,&MatrixKernel1);
-  KernelClass2 kernel2(TreeHeight,boxWidth,centerOfBox,&MatrixKernel2);
-  KernelClass3 kernel3(TreeHeight,boxWidth,centerOfBox,&MatrixKernel3);
+  KernelClass1 kernel1(_TreeHeight,_boxWidth,centerOfBox,&MatrixKernel1);
+  KernelClass2 kernel2(_TreeHeight,_boxWidth,centerOfBox,&MatrixKernel2);
+  KernelClass3 kernel3(_TreeHeight,_boxWidth,centerOfBox,&MatrixKernel3);
 
   // FMM algorithm combine octree and kernel
   typedef FFmmAlgorithmTsm<OctreeClass,CellClass,ContainerClass,KernelClass1,LeafClass> FmmClass1;
@@ -334,6 +334,8 @@ BoundaryIntegralFMM::execute()
  
       indexPart += 1;
   }
+
+  system_bs.solution->close();
 
   // Petsc performance log
   PetscLogEventEnd(USER_EVENT,0,0,0,0);

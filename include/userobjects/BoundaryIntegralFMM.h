@@ -19,6 +19,10 @@ public:
   virtual void execute();
 
   virtual void finalize();
+
+private:
+  Real _cx, _cy, _cz, _boxWidth;
+  unsigned int _TreeHeight;
 };
 
 #endif

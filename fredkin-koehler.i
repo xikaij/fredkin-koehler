@@ -1,5 +1,5 @@
 [Mesh]
-  file = sphere.e
+  file = sphere_boundary.e
   dim = 3
 []
 
@@ -26,8 +26,8 @@
     cy = 0.0
     cz = 0.0
     boxWidth = 2.1
-    TreeHeight = 4
-    execute_on = timestep_begin
+    TreeHeight = 5
+    execute_on = timestep_end
   [../]
 []
 
@@ -35,10 +35,11 @@
   type = Transient
   num_steps = 1
   dt = 1
+  nl_abs_tol = 1e-8
 []
 
 [Outputs]
   output_initial = true
-  exodus = true
+  nemesis = true
   print_perf_log = true
 []

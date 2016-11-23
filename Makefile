@@ -33,5 +33,5 @@ include            $(FRAMEWORK_DIR)/app.mk
 
 ###############################################################################
 # Additional special case targets should be added here
-app_INCLUDES       += -I/home/xikai/Softwares/SCALFMM-1.4-148/Src
-app_INCLUDES       += -I/home/xikai/Softwares/SCALFMM-1.4-148/Build/Src
+app_INCLUDES       += -I/Users/xikai/Projects/poisson/contrib/scalfmm/scalfmm/Src
+app_INCLUDES       += -I/Users/xikai/Projects/poisson/contrib/scalfmm/scalfmm/Build/Src

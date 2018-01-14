@@ -54,6 +54,7 @@ BoundaryIntegralFMM::BoundaryIntegralFMM(const InputParameters & parameters) :
 void
 BoundaryIntegralFMM::initialize()
 {
+
 }
 
 void
@@ -106,7 +107,7 @@ BoundaryIntegralFMM::execute()
 
   // Quadraure rule for surface integration with dimensionality
   // one less than the dimensionality of the element.
-  QGauss qface(dim, FIFTH);
+  QGauss qface(dim, THIRD);
 
   // Tell FE object to use quadrature rule.
   bs_face->attach_quadrature_rule (&qface);
@@ -328,7 +329,8 @@ BoundaryIntegralFMM::execute()
       // minus SIGN get (R_target-R_source) in ScalFMM
       Real bi_value = -global_potential[node_bs->id()]/PI_4
                       -1./2.*(*system_bs.solution)(node_dof_index_phi2);
- 
+//      std::cout << node_bs->id() << " "<< global_potential[node_bs->id()] << std::endl;
+
       // Boundary integral value to solution vector
       system_bs.solution->set(node_dof_index_phi2, bi_value);
  

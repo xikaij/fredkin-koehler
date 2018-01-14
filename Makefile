@@ -20,7 +20,7 @@ include $(FRAMEWORK_DIR)/build.mk
 include $(FRAMEWORK_DIR)/moose.mk
 
 ################################## MODULES ####################################
-ALL_MODULES := yes
+ALL_MODULES := no
 include $(MOOSE_DIR)/modules/modules.mk
 ###############################################################################
 
@@ -33,5 +33,5 @@ include            $(FRAMEWORK_DIR)/app.mk
 
 ###############################################################################
 # Additional special case targets should be added here
-app_INCLUDES       += -I/Users/xikai/Projects/poisson/contrib/scalfmm/scalfmm/Src
-app_INCLUDES       += -I/Users/xikai/Projects/poisson/contrib/scalfmm/scalfmm/Build/Src
+app_INCLUDES       += -I/home/xikai/Softwares_bebop/poisson/contrib/scalfmm/Src
+app_INCLUDES       += -I/home/xikai/Softwares_bebop/poisson/contrib/scalfmm/Build/Src

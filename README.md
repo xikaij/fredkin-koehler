@@ -3,9 +3,12 @@ Poisson
 
 Compilation procedures:
 
-1. Follow instructions in README under contrib/scalfmm to install ScalFMM.
+1. In contrib folder, use script build_scalfmm to install ScalFMM.
 
-2. Change the path to ScalFMM in Makefile that corresponds to those in your machine.
+   cd contrib
+   ./build_scalfmm
+
+2. In Makefile in the top directory, change the path to those corresponds to those in your machine for last two app_INCLUDES.
 
 3. Type 'make' in the top directory to compile the code.
 

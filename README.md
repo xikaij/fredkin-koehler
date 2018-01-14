@@ -6,6 +6,7 @@ Compilation procedures:
 1. In contrib folder, use script build_scalfmm to install ScalFMM.
 
    cd contrib
+
    ./build_scalfmm
 
 2. In Makefile in the top directory, change the path to those corresponds to those in your machine for last two app_INCLUDES.

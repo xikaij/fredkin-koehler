@@ -1,45 +1,63 @@
 [Mesh]
-  file = sphere_boundary.e
+  file = sphere_tet_approx_size0_05.e
   dim = 3
 []
 
 [Variables]
-  [./phi2]
+  [./phi]
     order = FIRST
     family = LAGRANGE
-    initial_condition = 1.0
   [../]
 []
 
-[Kernels]
-  [./diff]
-    type = Diffusion
-    variable = phi2
-  [../]
-[]
-
-[UserObjects]
-  [./bifmm]
-    type = BoundaryIntegralFMM
-    variable = phi2
-    cx = 0.0
-    cy = 0.0
-    cz = 0.0
-    boxWidth = 2.1
-    TreeHeight = 5
-    execute_on = timestep_end
-  [../]
+[Problem]
+  type = FEProblem
+  solve = false
 []
 
 [Executioner]
   type = Transient
   num_steps = 1
-  dt = 1
-  nl_abs_tol = 1e-8
+[]
+
+[MultiApps]
+  [./poisson]
+    type = FullSolveMultiApp
+    input_files = poisson.i
+    execute_on = initial
+  [../]
+  [./laplace]
+    type = FullSolveMultiApp
+    input_files = laplace.i
+    execute_on = timestep_begin
+  [../]
+[]
+
+[Transfers]
+  [./from_sub]
+    type = MultiAppCopyTransfer
+    direction = from_multiapp
+    source_variable = phi
+    variable = phi
+    multi_app = poisson
+  [../]
+  [./to_sub]
+    type = MultiAppCopyTransfer
+    direction = to_multiapp
+    source_variable = phi
+    variable = phi1
+    multi_app = laplace
+  [../]
+  [./from_sub2]
+    type = MultiAppAddTransfer
+    direction = from_multiapp
+    source_variable = phi
+    variable = phi
+    multi_app = laplace
+  [../]
 []
 
 [Outputs]
-  output_initial = true
-  nemesis = true
-  print_perf_log = true
+  exodus = true
+  execute_on = timestep_end
 []

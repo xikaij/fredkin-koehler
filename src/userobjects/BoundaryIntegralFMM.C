@@ -1,5 +1,9 @@
 #include "BoundaryIntegralFMM.h"
 
+// MOOSE headers
+#include "SystemBase.h"
+#include "MooseVariable.h"
+
 // libMesh headers
 #include "libmesh/equation_systems.h"
 #include "libmesh/explicit_system.h"
@@ -7,6 +11,9 @@
 #include "libmesh/quadrature_gauss.h"
 #include "libmesh/numeric_vector.h"
 #include "libmesh/node.h"
+#include "libmesh/boundary_mesh.h"
+#include "libmesh/metis_partitioner.h"
+#include "libmesh/boundary_volume_solution_transfer.h"
 
 // PETSc headers
 #include "petscsys.h"
@@ -32,6 +39,9 @@ InputParameters validParams<BoundaryIntegralFMM>()
   InputParameters params = validParams<GeneralUserObject>();
 
   params.set<std::string>("built_by_action") = "add_user_object";
+
+//  params.addRequiredCoupledVar("coupled_var", "Potential from Poisson solver");
+
   params.addRequiredParam<Real>("cx","x-coordinate for the center of FMM box");
   params.addRequiredParam<Real>("cy","y-coordinate for the center of FMM box");
   params.addRequiredParam<Real>("cz","z-coordinate for the center of FMM box");
@@ -54,60 +64,91 @@ BoundaryIntegralFMM::BoundaryIntegralFMM(const InputParameters & parameters) :
 void
 BoundaryIntegralFMM::initialize()
 {
-
 }
 
 void
 BoundaryIntegralFMM::execute()
 {
   // Get a constant reference to the mesh object
-  const MeshBase & mesh_bs = _subproblem.mesh().getMesh();
+  MeshBase & mesh = _subproblem.mesh().getMesh();
 
-  // The element dimension of boundary mesh
-  const unsigned int dim = mesh_bs.mesh_dimension();
+  // Element dimension of volume mesh
+  const unsigned int dim = mesh.mesh_dimension();
+  const unsigned int dim_boundary = dim -1;
+
+  // Extract boundary mesh
+  BoundaryMesh boundary_mesh(mesh.comm() , dim_boundary);
+  mesh.get_boundary_info().sync(boundary_mesh);
+  boundary_mesh.print_info();
+
+  // Re-partition boundary mesh, before adding EquationSystems
+  MetisPartitioner bs_partitioner;
+  bs_partitioner.partition(boundary_mesh);
+
+  // Equation system on boundary mesh
+  EquationSystems boundary_system (boundary_mesh);
+  ExplicitSystem & boundary_potential = boundary_system.add_system<ExplicitSystem> ("BoundaryPotential");
+  unsigned int bs_phi1 = boundary_system.get_system("BoundaryPotential").add_variable("phi1", FIRST);
+  unsigned int bs_phi2 = boundary_system.get_system("BoundaryPotential").add_variable("phi2", FIRST);
+  boundary_system.init();
+
+  // Construct SolutionTransfer object. The communicator won't be
+  // used directly, it just needs to be passed in to satisfy the
+  // ParallelObject interface.
+  BoundaryVolumeSolutionTransfer transfer(mesh.comm());
 
   // Get a reference to the EquationSystem
   EquationSystems & bs = _subproblem.es();
+  bs.print_info();
 
-  // The boundary integral uses ExplicitSystem and
-  // have only one system
-  ExplicitSystem & system_bs = bs.get_system<ExplicitSystem> (0);
+  // Keep track of which variables are coupled so we know what we depend on
+//  const std::vector<MooseVariable *> & coupled_vars = getCoupledMooseVars();
 
-  std::vector<Number> global_potential(system_bs.solution->size());
+  // System on the volume mesh, 'System' is a libMesh class
+  System & sys = bs.get_system("nl0");
+  System & sys_aux = bs.get_system("aux0");
 
-  // Petsc performance log for boundary integral calculation
-  // other than VecScatter
-  int USER_EVENT;
-  PetscLogEventRegister("BoundaryInt",0,&USER_EVENT);
-  PetscLogEventBegin(USER_EVENT,0,0,0,0);
+  // Transfer nodal values from VolumeMesh to BoundaryMesh.
+//  transfer.transfer(sys.variable(0), // Note: there is only one variable in volume mesh, so variable number is 0
+  transfer.transfer(sys_aux.variable(0), // Note: there is only one variable in volume mesh, so variable number is 0
+                    boundary_potential.variable(bs_phi1));
+
+  boundary_system.get_system("BoundaryPotential").solution->close();
+  boundary_system.get_system("BoundaryPotential").update();
+
+  std::vector<Number> global_potential(boundary_potential.solution->size());
 
   // A reference to the DofMap object for this system.
-  const DofMap & dof_map_bs = system_bs.get_dof_map();
+  const DofMap & dof_map_bs = boundary_potential.get_dof_map();
 
-  // Define dof_indices holder for phi2
-  std::vector<dof_id_type> dof_indices_phi2;
+  // Define dof_indices holder for phi1
+  std::vector<dof_id_type> dof_indices_phi1;
 
   // Get system number and variable numbers
-  const unsigned short int        system_number = system_bs.number();
-  const unsigned short int variable_number_phi2 = 0; // phi2
+  const unsigned short int        system_number = boundary_potential.number();
+  const unsigned short int variable_number_phi1 = boundary_potential.variable_number("phi1");
+  const unsigned short int variable_number_phi2 = boundary_potential.variable_number("phi2");
 
   // Get a constant reference to variable phi2, get their number of components
-  const Variable &                variable_phi2 = system_bs.variable(variable_number_phi2);
+  const Variable&                 variable_phi1 = boundary_potential.variable(variable_number_phi1);
+  const unsigned short int   variable_comp_phi1 = variable_phi1.n_components();
+
+  const Variable &                variable_phi2 = boundary_potential.variable(variable_number_phi2);
   const unsigned short int   variable_comp_phi2 = variable_phi2.n_components();
 
   // Get a constant reference to the Finite Element type
   // for the first (and only) variable in the system.
-  FEType bs_type = dof_map_bs.variable_type(variable_number_phi2);
+  FEType bs_type = dof_map_bs.variable_type(variable_number_phi1);
 
   // Build a Finite Element object of the specified type. Since the
   // FEBase::build() member dynamically creates memory we will
   // store the object as an UniquePtr<FEBase>. This can be thought
   // of as a pointer that will clean up after itself.
-  UniquePtr<FEBase> bs_face (FEBase::build(dim, bs_type));
+  UniquePtr<FEBase> bs_face (FEBase::build(dim_boundary, bs_type));
 
   // Quadraure rule for surface integration with dimensionality
   // one less than the dimensionality of the element.
-  QGauss qface(dim, THIRD);
+  QGauss qface(dim_boundary, FIFTH);
 
   // Tell FE object to use quadrature rule.
   bs_face->attach_quadrature_rule (&qface);
@@ -149,8 +190,8 @@ BoundaryIntegralFMM::execute()
   FSize indexPart = 0;
 
   // Node iterator for global mesh, because here we don't partition target points.
-  MeshBase::const_node_iterator           nd = mesh_bs.nodes_begin();
-  const MeshBase::const_node_iterator end_nd = mesh_bs.nodes_end();
+  MeshBase::const_node_iterator           nd = boundary_mesh.nodes_begin();
+  const MeshBase::const_node_iterator end_nd = boundary_mesh.nodes_end();
 
   // Loop over all nodes - targets
   for ( ; nd != end_nd ; ++nd){   
@@ -174,8 +215,8 @@ BoundaryIntegralFMM::execute()
 
   // Iterator el will iterate from the first to the last element on
   // this processor. Because here we partition the source points.
-  const MeshBase::const_element_iterator end_el = mesh_bs.local_elements_end();
-  MeshBase::const_element_iterator           el = mesh_bs.local_elements_begin();
+  const MeshBase::const_element_iterator end_el = boundary_mesh.local_elements_end();
+  MeshBase::const_element_iterator           el = boundary_mesh.local_elements_begin();
 
   // Loop over all sources at quadrature points in every elements.
   // ++el requires an unnecessary temporary object.
@@ -211,11 +252,11 @@ BoundaryIntegralFMM::execute()
       ny = ny / nunit;
       nz = nz / nunit;
 
-      // Global dof_indices for this element and variable phi2
-      dof_map_bs.dof_indices(elem_bs, dof_indices_phi2, variable_number_phi2);
-      // Number of dof indices for phi2 on this element
-      // used to loop through all nodes to calculate phi2 on quadrature point
-      const unsigned int n_phi2_dofs = dof_indices_phi2.size();
+      // Global dof_indices for this element and variable phi1
+      dof_map_bs.dof_indices(elem_bs, dof_indices_phi1, variable_number_phi1);
+      // Number of dof indices for phi1 on this element
+      // used to loop through all nodes to calculate phi1 on quadrature point
+      const unsigned int n_phi1_dofs = dof_indices_phi1.size();
 
       // Loop over the face quadrature points for integration.
       for (unsigned int qp=0; qp<qface.n_points(); qp++){
@@ -224,13 +265,13 @@ BoundaryIntegralFMM::execute()
           const Real y_qp = qface_point[qp](1);
           const Real z_qp = qface_point[qp](2);
  
-          // Value of phi2 at quadrature point
-          Real phi2_qp = 0.0;
-          for (unsigned int l=0; l < n_phi2_dofs; l++){
-              phi2_qp += phi[l][qp] * (*system_bs.current_local_solution)(dof_indices_phi2[l]);
+          // Value of phi1 at quadrature point
+          Real phi1_qp = 0.0;
+          for (unsigned int l=0; l < n_phi1_dofs; l++){
+              phi1_qp += phi[l][qp] * (*boundary_potential.current_local_solution)(dof_indices_phi1[l]);
           }
 
-          Real phys = JxW_face[qp]*phi2_qp;
+          Real phys = JxW_face[qp]*phi1_qp;
 
           particlePosition.setPosition( x_qp , y_qp , z_qp );
           // Insert into trees             particleType    index      physicalValue  pot forces
@@ -245,8 +286,8 @@ BoundaryIntegralFMM::execute()
 
   const FSize nbTotal = indexPart;
 
-  std::cout << "Particle insertion into octree done." << std::endl
-            << nbTargets << " target particles, " << nbTotal-nbTargets << " source particles." << std::endl;
+  //std::cout << "Particle insertion into octree done." << std::endl
+  //          << nbTargets << " target particles, " << nbTotal-nbTargets << " source particles." << std::endl;
 
   // Apply kernels, here performs the compression and set M2L operators
   KernelClass1 kernel1(_TreeHeight,_boxWidth,centerOfBox,&MatrixKernel1);
@@ -310,17 +351,21 @@ BoundaryIntegralFMM::execute()
   });
 
   // Get contribution from all source points among all processors.
-  mesh_bs.comm().sum(global_potential);
+  boundary_mesh.comm().sum(global_potential);
 
   // Reset nd and particle index, assign values to nodes at this processor
   indexPart = 0;
-  nd = mesh_bs.local_nodes_begin();
-  const MeshBase::const_node_iterator end_nd_local = mesh_bs.local_nodes_end();
+  nd = boundary_mesh.local_nodes_begin();
+  const MeshBase::const_node_iterator end_nd_local = boundary_mesh.local_nodes_end();
 
   for ( ; nd != end_nd_local ; ++nd){
       const Node* node_bs = *nd;
  
       // Dof_index for each node
+      const dof_id_type node_dof_index_phi1 = node_bs->dof_number(system_number,
+                                                                  variable_number_phi1,
+                                                                  variable_comp_phi1-1);
+
       const dof_id_type node_dof_index_phi2 = node_bs->dof_number(system_number,
                                                                   variable_number_phi2,
                                                                   variable_comp_phi2-1);
@@ -328,19 +373,27 @@ BoundaryIntegralFMM::execute()
       // Integral value, only works for smooth surface,
       // minus SIGN get (R_target-R_source) in ScalFMM
       Real bi_value = -global_potential[node_bs->id()]/PI_4
-                      -1./2.*(*system_bs.solution)(node_dof_index_phi2);
-//      std::cout << node_bs->id() << " "<< global_potential[node_bs->id()] << std::endl;
+                      -1./2.*(*boundary_potential.solution)(node_dof_index_phi1);
+      //std::cout << node_bs->id() << ", BI = "<< global_potential[node_bs->id()] << ". bi_value = " << bi_value
+      //          << ". Original solution is " << (*boundary_potential.solution)(node_dof_index_phi1) << std::endl;
 
       // Boundary integral value to solution vector
-      system_bs.solution->set(node_dof_index_phi2, bi_value);
+      boundary_potential.solution->set(node_dof_index_phi2, bi_value);
  
       indexPart += 1;
   }
 
-  system_bs.solution->close();
+  // End of BI-FMM
+  boundary_potential.solution->close();
+  boundary_potential.update();
 
-  // Petsc performance log
-  PetscLogEventEnd(USER_EVENT,0,0,0,0);
+  // Transfer nodal values from BoundaryMesh to VolumeMesh
+  transfer.transfer(boundary_potential.variable(bs_phi2),
+                    sys_aux.variable(0));
+
+  sys_aux.solution->close();
+  sys_aux.update();
+
 }
 
 void

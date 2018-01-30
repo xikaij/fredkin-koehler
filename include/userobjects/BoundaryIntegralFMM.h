@@ -4,6 +4,9 @@
 #include "GeneralUserObject.h"
 #include "MooseMesh.h"
 
+// Forward declarations
+class MooseVariable;
+class SystemBase;
 class BoundaryIntegralFMM;
 
 template<>
@@ -14,13 +17,17 @@ class BoundaryIntegralFMM : public GeneralUserObject
 public:
   BoundaryIntegralFMM(const InputParameters & parameters);
 
-  virtual void initialize();
+  virtual void initialize() override;
 
-  virtual void execute();
+  virtual void execute() override;
 
-  virtual void finalize();
+  virtual void finalize() override;
 
+protected:
+
+  
 private:
+  /// FMM parameters
   Real _cx, _cy, _cz, _boxWidth;
   unsigned int _TreeHeight;
 };

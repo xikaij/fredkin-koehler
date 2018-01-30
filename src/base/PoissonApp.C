@@ -4,8 +4,18 @@
 #include "ModulesApp.h"
 #include "MooseSyntax.h"
 
-// Poisson Includes
+// Kernels
+#include "Electrostatics.h"
+#include "PolarElectricEStrong.h"
+
+// UserObjects
 #include "BoundaryIntegralFMM.h"
+
+// BoundaryCondition
+#include "CoupledDirichletBC.h"
+
+// Transfer
+#include "MultiAppAddTransfer.h"
 
 template<>
 InputParameters validParams<PoissonApp>()
@@ -48,7 +58,18 @@ extern "C" void PoissonApp__registerObjects(Factory & factory) { PoissonApp::reg
 void
 PoissonApp::registerObjects(Factory & factory)
 {
+  // Kernels
+  registerKernel(Electrostatics);
+  registerKernel(PolarElectricEStrong);
+
+  // UserObjects
   registerUserObject(BoundaryIntegralFMM);
+
+  // BoundaryCondition
+  registerBoundaryCondition(CoupledDirichletBC);
+
+  // Transfers
+  registerTransfer(MultiAppAddTransfer);
 }
 
 // External entry point for dynamic syntax association

@@ -1,4 +1,4 @@
-#include "PoissonApp.h"
+#include "FredkinKoehlerApp.h"
 #include "Moose.h"
 #include "AppFactory.h"
 #include "ModulesApp.h"
@@ -18,7 +18,7 @@
 #include "MultiAppAddTransfer.h"
 
 template<>
-InputParameters validParams<PoissonApp>()
+InputParameters validParams<FredkinKoehlerApp>()
 {
   InputParameters params = validParams<MooseApp>();
 
@@ -29,34 +29,34 @@ InputParameters validParams<PoissonApp>()
   return params;
 }
 
-PoissonApp::PoissonApp(InputParameters parameters) :
+FredkinKoehlerApp::FredkinKoehlerApp(InputParameters parameters) :
     MooseApp(parameters)
 {
   Moose::registerObjects(_factory);
   ModulesApp::registerObjects(_factory);
-  PoissonApp::registerObjects(_factory);
+  FredkinKoehlerApp::registerObjects(_factory);
 
   Moose::associateSyntax(_syntax, _action_factory);
   ModulesApp::associateSyntax(_syntax, _action_factory);
-  PoissonApp::associateSyntax(_syntax, _action_factory);
+  FredkinKoehlerApp::associateSyntax(_syntax, _action_factory);
 }
 
-PoissonApp::~PoissonApp()
+FredkinKoehlerApp::~FredkinKoehlerApp()
 {
 }
 
 // External entry point for dynamic application loading
-extern "C" void PoissonApp__registerApps() { PoissonApp::registerApps(); }
+extern "C" void FredkinKoehlerApp__registerApps() { FredkinKoehlerApp::registerApps(); }
 void
-PoissonApp::registerApps()
+FredkinKoehlerApp::registerApps()
 {
-  registerApp(PoissonApp);
+  registerApp(FredkinKoehlerApp);
 }
 
 // External entry point for dynamic object registration
-extern "C" void PoissonApp__registerObjects(Factory & factory) { PoissonApp::registerObjects(factory); }
+extern "C" void FredkinKoehlerApp__registerObjects(Factory & factory) { FredkinKoehlerApp::registerObjects(factory); }
 void
-PoissonApp::registerObjects(Factory & factory)
+FredkinKoehlerApp::registerObjects(Factory & factory)
 {
   // Kernels
   registerKernel(Electrostatics);
@@ -73,8 +73,8 @@ PoissonApp::registerObjects(Factory & factory)
 }
 
 // External entry point for dynamic syntax association
-extern "C" void PoissonApp__associateSyntax(Syntax & syntax, ActionFactory & action_factory) { PoissonApp::associateSyntax(syntax, action_factory); }
+extern "C" void FredkinKoehlerApp__associateSyntax(Syntax & syntax, ActionFactory & action_factory) { FredkinKoehlerApp::associateSyntax(syntax, action_factory); }
 void
-PoissonApp::associateSyntax(Syntax & /*syntax*/, ActionFactory & /*action_factory*/)
+FredkinKoehlerApp::associateSyntax(Syntax & /*syntax*/, ActionFactory & /*action_factory*/)
 {
 }

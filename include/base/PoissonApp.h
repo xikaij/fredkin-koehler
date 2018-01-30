@@ -1,22 +1,22 @@
-#ifndef POISSONAPP_H
-#define POISSONAPP_H
+#ifndef FREDKINKOEHLERAPP_H
+#define FREDKINKOEHLERAPP_H
 
 #include "MooseApp.h"
 
-class PoissonApp;
+class FredkinKoehlerApp;
 
 template<>
-InputParameters validParams<PoissonApp>();
+InputParameters validParams<FredkinKoehlerApp>();
 
-class PoissonApp : public MooseApp
+class FredkinKoehlerApp : public MooseApp
 {
 public:
-  PoissonApp(InputParameters parameters);
-  virtual ~PoissonApp();
+  FredkinKoehlerApp(InputParameters parameters);
+  virtual ~FredkinKoehlerApp();
 
   static void registerApps();
   static void registerObjects(Factory & factory);
   static void associateSyntax(Syntax & syntax, ActionFactory & action_factory);
 };
 
-#endif /* POISSONAPP_H */
+#endif /* FREDKINKOEHLERAPP_H */

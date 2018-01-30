@@ -26,12 +26,12 @@ include $(MOOSE_DIR)/modules/modules.mk
 
 # dep apps
 APPLICATION_DIR    := $(CURDIR)
-APPLICATION_NAME   := poisson
+APPLICATION_NAME   := fredkin-koehler
 BUILD_EXEC         := yes
 DEP_APPS           := $(shell $(FRAMEWORK_DIR)/scripts/find_dep_apps.py $(APPLICATION_NAME))
 include            $(FRAMEWORK_DIR)/app.mk
 
 ###############################################################################
 # Additional special case targets should be added here
-app_INCLUDES       += -I/home/xikai/Softwares_bebop/poisson/contrib/scalfmm/Src
-app_INCLUDES       += -I/home/xikai/Softwares_bebop/poisson/contrib/scalfmm/Build/Src
+app_INCLUDES       += -I/home/xikai/Softwares_bebop/fredkin-koehler/contrib/scalfmm/Src
+app_INCLUDES       += -I/home/xikai/Softwares_bebop/fredkin-koehler/contrib/scalfmm/Build/Src

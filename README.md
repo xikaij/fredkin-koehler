@@ -2,7 +2,7 @@
 
 ### Introduction
 
-Fredkin-Koehler method is a numerical method to compute electrostatic/magnetic potential inside ferroelectric/ferromagnetic bodies. It is a hybrid method that combines finite element and boundary integral methods. The boundary integration in the original method has $O(N^2)$ scaling, where $N$ is number of unknowns in the discretized mesh. The governing equation is shown as follows,
+Fredkin-Koehler method is a numerical method to compute electrostatic/magnetic potential inside ferroelectric/ferromagnetic bodies. It is a hybrid method that combines finite element and boundary integral methods. The boundary integration in the original method has $O(N^2)$ scaling, where $N$ is number of unknowns in the discretized mesh. The governing equation is shown as follows, (to view the equations and this manual more clearly, please use the manual.html in **doc** folder)
 
 $\nabla^2 \phi(\bold{x})=4 \pi \nabla \cdot \bold{M(\bold{x})} \quad$ for $\bold{x}\in R_m$,
 

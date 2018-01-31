@@ -50,14 +50,15 @@
 </li>
 <li>
 <p>Compile ScalFMM</p>
-<p><code>cd contrib</code><br>
-<code>./build_scalfmm</code></p>
+<p><code>cd contrib</code></p>
+<p><code>./build_scalfmm</code></p>
+<p><code>cd ..</code></p>
 <p>If you meet any trouble in compiling ScalFMM, please refer to Help and News section on ScalFMM’s GitLab site <a href="https://gitlab.inria.fr/solverstack/ScalFMM">here</a>.</p>
 </li>
 <li>
 <p>Add path to ScalFMM into the Makefile in the top directory. Edit last two <code>app_INCLUDES</code> in the Makefile as follows:</p>
-<p><code>app_INCLUDES += -I/your/path/to/fredkin-koehler/contrib/scalfmm/Src</code><br>
-<code>app_INCLUDES += -I/your/path/to/fredkin-koehler/contrib/scalfmm/Build/Src</code></p>
+<p><code>app_INCLUDES += -I/your/path/to/fredkin-koehler/contrib/scalfmm/Src</code></p>
+<p><code>app_INCLUDES += -I/your/path/to/fredkin-koehler/contrib/scalfmm/Build/Src</code></p>
 </li>
 <li>
 <p>Then ‘make’, in the top directory, to compile the code</p>
@@ -68,18 +69,26 @@
 <p><em>3. Run example.</em></p>
 <p>An example is provided in the top directory. The input files are</p>
 <blockquote>
-<p>fredkin-koehler.i<br>
-poisson.i<br>
-laplace.i</p>
+<p>fredkin-koehler.i</p>
+</blockquote>
+<blockquote>
+<p>poisson.i</p>
+</blockquote>
+<blockquote>
+<p>laplace.i</p>
 </blockquote>
 <p>and the mesh file is <code>sphere_tet_approx_size0_05.e</code>. An unit magnetization density in the x-direction <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="bold">M</mi></mrow><mo>=</mo></mrow><annotation encoding="application/x-tex">\bold{M}=</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.68611em;"></span><span class="strut bottom" style="height: 0.68611em; vertical-align: 0em;"></span><span class="base"><span class="mord"><span class="mord mathbf">M</span></span><span class="mrel">=</span></span></span></span></span> (1, 0, 0) set as the initial condition. Run the application as</p>
-<p><code>mpiexec -np NUM_OF_CORES ./fredkin-koehler -i fredkin-koehler.i</code></p>
+<p><code>mpiexec -np NUM_OF_CORES ./fredkin-koehler-opt -i fredkin-koehler.i</code></p>
 <p>Replace <code>NUM_OF_CORES</code> by the total number of cores you want to use.</p>
 <p>The output files are as follows, which you could use <a href="https://www.paraview.org/">Paraview</a> for visualization.</p>
 <blockquote>
-<p>fredkin-koehler_out.e      (output of the master app, showing <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">\phi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.88888em; vertical-align: -0.19444em;"></span><span class="base"><span class="mord mathit">ϕ</span></span></span></span></span>)<br>
-fredkin-koehler_out_poisson0.e  (output of the Poisson solver, showing <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>ϕ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">\phi_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.88888em; vertical-align: -0.19444em;"></span><span class="base"><span class="mord"><span class="mord mathit">ϕ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.301108em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathrm mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"></span></span></span></span></span></span></span></span></span>)<br>
-fredkin-koehler_out_laplace0.e  (output of the Laplace solver, showing <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>ϕ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\phi_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.88888em; vertical-align: -0.19444em;"></span><span class="base"><span class="mord"><span class="mord mathit">ϕ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.301108em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathrm mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"></span></span></span></span></span></span></span></span></span>)</p>
+<p>fredkin-koehler_out.e      (output of the master app, showing <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">\phi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.88888em; vertical-align: -0.19444em;"></span><span class="base"><span class="mord mathit">ϕ</span></span></span></span></span>)</p>
+</blockquote>
+<blockquote>
+<p>fredkin-koehler_out_poisson0.e  (output of the Poisson solver, showing <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>ϕ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">\phi_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.88888em; vertical-align: -0.19444em;"></span><span class="base"><span class="mord"><span class="mord mathit">ϕ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.301108em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathrm mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"></span></span></span></span></span></span></span></span></span>)</p>
+</blockquote>
+<blockquote>
+<p>fredkin-koehler_out_laplace0.e  (output of the Laplace solver, showing <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>ϕ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\phi_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height: 0.69444em;"></span><span class="strut bottom" style="height: 0.88888em; vertical-align: -0.19444em;"></span><span class="base"><span class="mord"><span class="mord mathit">ϕ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.301108em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathrm mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"></span></span></span></span></span></span></span></span></span>)</p>
 </blockquote>
 <h2 id="machinery">Machinery</h2>
 <p>The code uses <code>MultiApps</code> functionality in Moose. <code>fredkin-koehler.i</code> is the master app, while <code>poisson.i</code> and <code>laplace.i</code> are subapps.</p>

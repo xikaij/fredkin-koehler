@@ -31,13 +31,17 @@ Follow instructions on [GettingStarted](http://mooseframework.org/getting-starte
 - Compile ScalFMM
 
    `cd contrib`
+   
    `./build_scalfmm`
+
+   `cd ..`
 
     If you meet any trouble in compiling ScalFMM, please refer to Help and News section on ScalFMM's GitLab site [here](https://gitlab.inria.fr/solverstack/ScalFMM).
 
 - Add path to ScalFMM into the Makefile in the top directory. Edit last two `app_INCLUDES` in the Makefile as follows:
  
     `app_INCLUDES       += -I/your/path/to/fredkin-koehler/contrib/scalfmm/Src`
+    
     `app_INCLUDES       += -I/your/path/to/fredkin-koehler/contrib/scalfmm/Build/Src`
 
 - Then 'make', in the top directory, to compile the code
@@ -52,19 +56,23 @@ Follow instructions on [GettingStarted](http://mooseframework.org/getting-starte
 An example is provided in the top directory. The input files are 
 
 > fredkin-koehler.i
+ 
 > poisson.i
+
 > laplace.i
 
 and the mesh file is `sphere_tet_approx_size0_05.e`. An unit magnetization density in the x-direction $\bold{M}=$ (1, 0, 0) set as the initial condition. Run the application as
 
-`mpiexec -np NUM_OF_CORES ./fredkin-koehler -i fredkin-koehler.i`
+`mpiexec -np NUM_OF_CORES ./fredkin-koehler-opt -i fredkin-koehler.i`
 
 Replace `NUM_OF_CORES` by the total number of cores you want to use.
 
 The output files are as follows, which you could use [Paraview](https://www.paraview.org/) for visualization.
 
 > fredkin-koehler_out.e      (output of the master app, showing $\phi$)
+ 
 > fredkin-koehler_out_poisson0.e  (output of the Poisson solver, showing $\phi_1$)
+
 > fredkin-koehler_out_laplace0.e  (output of the Laplace solver, showing $\phi_2$)
 
 ## Machinery

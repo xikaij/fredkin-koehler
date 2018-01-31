@@ -55,8 +55,8 @@ class FFmmAlgorithmTsm : public FAbstractAlgorithm{
 
     const int leafLevelSeparationCriteria;
 
-    FLOG(FTic counterTime);                                               //< In case of debug: to count the elapsed time
-    FLOG(FTic computationCounter);                                        //< In case of debug: to  count computation time
+    FLOG(FTic counterTime)                                               //< In case of debug: to count the elapsed time
+    FLOG(FTic computationCounter)                                        //< In case of debug: to  count computation time
 
 public:
     /** The constructor need the octree and the kernels used for computation

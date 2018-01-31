@@ -34,4 +34,4 @@ include            $(FRAMEWORK_DIR)/app.mk
 ###############################################################################
 # Additional special case targets should be added here
 app_INCLUDES       += -I/home/xikai/Softwares_bebop/fredkin-koehler/contrib/scalfmm/Src
-app_INCLUDES       += -I/home/xikai/Softwares_bebop/fredkin-koehler/contrib/scalfmm/Build/Src
+app_INCLUDES       += -I/home/xikai/Softwares_bebop/fredkin-koehler/contrib/scalfmm/build/Src

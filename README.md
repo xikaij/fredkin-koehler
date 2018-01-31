@@ -88,10 +88,10 @@ In `laplace.i`, a boundary mesh is extracted from the volumetric mesh and the bo
 
 The solution of the Laplace equation provides $\phi_2$, which is then transfered from sub_app2 (`laplace.i`) to the master_app (`fredkin-koehler.i`) and added upon values of $\phi_1$ in the master_app to get the final potential $\phi$. The solution transfer is done by `MultiAppAddTransfer`, which is borrowed from `MultiAppCopyTransfer`. The only difference between them is that `MultiAppCopyTransfer` uses libMesh function of solution.set(), while `MultiAppAddTransfer` uses solution.add().
 
-
+## What's next
+Current implementation ONLY supports ferroelectric/ferromagnetic bodies with smooth surfaces (e.g. spheres, or bodies without sharp corners). For modeling cuboidal shaped bodies, special treatments need to be done in the boundary integration part.
 
 ## Algorithm
-
 The method paper has details on the implementation and tests of this code: [An O(N) and parallel approach to integral problems by a kernel-independent fast multipole method: Application to polarization and magnetization of interacting particles. The Journal of Chemical Physics 145, 064307 (2016)](http://aip.scitation.org/doi/10.1063/1.4960436).
 
 

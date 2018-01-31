@@ -51,10 +51,6 @@
 
 [Executioner]
   type = Steady
-  execute_on = timestep_end
-#  num_steps = 1
-#  nl_rel_tol = 1e-6
-#  nl_abs_tol = 1e-6
 []
 
 [Outputs]

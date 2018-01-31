@@ -48,7 +48,7 @@ Follow instructions on [GettingStarted](http://mooseframework.org/getting-starte
 
    `make`
 
-It will generate the executable `fredkin-koehler-opt` in the top directory.
+  It will generate the executable `fredkin-koehler-opt` in the top directory.
 
 <br>
 

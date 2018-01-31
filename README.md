@@ -42,12 +42,13 @@ Follow instructions on [GettingStarted](http://mooseframework.org/getting-starte
  
     `app_INCLUDES       += -I/your/path/to/fredkin-koehler/contrib/scalfmm/Src`
     
-    `app_INCLUDES       += -I/your/path/to/fredkin-koehler/contrib/scalfmm/Build/Src`
+    `app_INCLUDES       += -I/your/path/to/fredkin-koehler/contrib/scalfmm/build/Src`
 
 - Then 'make', in the top directory, to compile the code
 
    `make`
 
+It will generate the executable `fredkin-koehler-opt` in the top directory.
 
 <br>
 

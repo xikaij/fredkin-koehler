@@ -73,7 +73,7 @@ An example is provided in the *./tests/unit_sphere* directory. The input files a
 
 and the mesh file is `sphere_tet_approx_size0_05.e`. An unit magnetization density in the x-direction $\bold{M}=$ (1, 0, 0) set as the initial condition. Run the application as
 
-`mpiexec -np NUM_OF_CORES ./fredkin-koehler-opt -i fredkin-koehler.i`
+`mpiexec -np NUM_OF_CORES ../../fredkin-koehler-opt -i fredkin-koehler.i`
 
 Replace `NUM_OF_CORES` by the total number of cores you want to use.
 

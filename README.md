@@ -1,4 +1,4 @@
-﻿# Parallel O(N) Fredkin-Koehler Solver
+# Parallel O(N) Fredkin-Koehler Solver
 
 ### Introduction
 
@@ -15,6 +15,15 @@ In a recent work, we have developed a parallel code that further improves the co
 
 ## Installation
 
+*0. System environment prep*
+
+Load or compile the following required packages:
+
+-   [CMAKE](https://cmake.org/) (e.g., version 3.6.2)
+-   [GCC](https://gcc.gnu.org/) (e.g., version 6.2)
+-   [PYTHON](https://www.python.org/) (python 2)
+-   [OPENMPI](https://www.open-mpi.org/) (e.g., version 2.0.1)
+
 *1. Install Moose*
 
 Follow instructions on [GettingStarted](http://mooseframework.org/getting-started/) to install Moose Framework. If you meet any troubles during installation, please refer to [moose-users](https://groups.google.com/forum/#!forum/moose-users) forum for help.
@@ -28,7 +37,7 @@ Follow instructions on [GettingStarted](http://mooseframework.org/getting-starte
 
     `git clone https://github.com/xikaij/fredkin-koehler.git`
 
-- Compile ScalFMM
+- Compile ScalFMM [CMAKE is required before compiling]
 
    `cd contrib`
    
@@ -54,7 +63,7 @@ Follow instructions on [GettingStarted](http://mooseframework.org/getting-starte
 
 *3. Run example.*
 
-An example is provided in the top directory. The input files are 
+An example is provided in the *./tests/unit_sphere* directory. The input files are 
 
 > fredkin-koehler.i
  
@@ -126,3 +135,6 @@ The code is open-source and distributed under the GNU GPL license, and may not b
 For more information see: [http://mooseframework.org/create-an-app/](http://mooseframework.org/create-an-app/)
 
 
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbNzk3OTc1ODAxLC0yMTMxNTEzMjIzXX0=
+-->

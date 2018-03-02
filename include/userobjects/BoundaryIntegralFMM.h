@@ -5,7 +5,7 @@
 #include "MooseMesh.h"
 
 // Forward declarations
-class MooseVariable;
+class MooseVariableFE;
 class SystemBase;
 class BoundaryIntegralFMM;
 

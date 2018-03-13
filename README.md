@@ -28,8 +28,6 @@ Load or compile the following required packages:
 
 Follow instructions on [GettingStarted](http://mooseframework.org/getting-started/) to install Moose Framework. If you meet any troubles during installation, please refer to [moose-users](https://groups.google.com/forum/#!forum/moose-users) forum for help.
 
-Note: before executing *scripts/update_and_rebuild_libmesh.sh*, line 30 (# include <petscblaslapack.h>) in *moose/libmesh/installed/include/libmesh/dense_matrix.h* should be commented out to avoid conflicting blas function declarations between scalfmm and petsc.
-
 <br>
 
 *2. Install Parallel O(N) Fredkin-Koehler solver*

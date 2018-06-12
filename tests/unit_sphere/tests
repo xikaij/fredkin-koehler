@@ -1,8 +1,8 @@
 [Tests]
   [./full]
     type = 'Exodiff'
-    input = 'fredkin-koehler.i'
-    exodiff = 'fredkin-koehler_out.e'
+    input = 'koala.i'
+    exodiff = 'koala_out.e'
     max_parallel = 1
     max_threads = 1
   [../]

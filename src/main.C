@@ -1,11 +1,11 @@
-#include "FredkinKoehlerApp.h"
+#include "KoalaApp.h"
 #include "MooseInit.h"
 #include "Moose.h"
 #include "MooseApp.h"
 #include "AppFactory.h"
 
 // Create a performance log
-PerfLog Moose::perf_log("FredkinKoehler");
+PerfLog Moose::perf_log("Koala");
 
 // Begin the main program.
 int main(int argc, char *argv[])
@@ -14,10 +14,10 @@ int main(int argc, char *argv[])
   MooseInit init(argc, argv);
 
   // Register this application's MooseApp and any it depends on
-  FredkinKoehlerApp::registerApps();
+  KoalaApp::registerApps();
 
   // This creates dynamic memory that we're responsible for deleting
-  std::shared_ptr<MooseApp> app = AppFactory::createAppShared("FredkinKoehlerApp", argc, argv);
+  std::shared_ptr<MooseApp> app = AppFactory::createAppShared("KoalaApp", argc, argv);
 
   // Execute the application
   app->run();

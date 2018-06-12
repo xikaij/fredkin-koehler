@@ -1,4 +1,4 @@
-#include "FredkinKoehlerApp.h"
+#include "KoalaApp.h"
 #include "Moose.h"
 #include "AppFactory.h"
 #include "ModulesApp.h"
@@ -18,7 +18,7 @@
 #include "MultiAppAddTransfer.h"
 
 template<>
-InputParameters validParams<FredkinKoehlerApp>()
+InputParameters validParams<KoalaApp>()
 {
   InputParameters params = validParams<MooseApp>();
 
@@ -29,34 +29,34 @@ InputParameters validParams<FredkinKoehlerApp>()
   return params;
 }
 
-FredkinKoehlerApp::FredkinKoehlerApp(InputParameters parameters) :
+KoalaApp::KoalaApp(InputParameters parameters) :
     MooseApp(parameters)
 {
   Moose::registerObjects(_factory);
   ModulesApp::registerObjects(_factory);
-  FredkinKoehlerApp::registerObjects(_factory);
+  KoalaApp::registerObjects(_factory);
 
   Moose::associateSyntax(_syntax, _action_factory);
   ModulesApp::associateSyntax(_syntax, _action_factory);
-  FredkinKoehlerApp::associateSyntax(_syntax, _action_factory);
+  KoalaApp::associateSyntax(_syntax, _action_factory);
 }
 
-FredkinKoehlerApp::~FredkinKoehlerApp()
+KoalaApp::~KoalaApp()
 {
 }
 
 // External entry point for dynamic application loading
-extern "C" void FredkinKoehlerApp__registerApps() { FredkinKoehlerApp::registerApps(); }
+extern "C" void KoalaApp__registerApps() { KoalaApp::registerApps(); }
 void
-FredkinKoehlerApp::registerApps()
+KoalaApp::registerApps()
 {
-  registerApp(FredkinKoehlerApp);
+  registerApp(KoalaApp);
 }
 
 // External entry point for dynamic object registration
-extern "C" void FredkinKoehlerApp__registerObjects(Factory & factory) { FredkinKoehlerApp::registerObjects(factory); }
+extern "C" void KoalaApp__registerObjects(Factory & factory) { KoalaApp::registerObjects(factory); }
 void
-FredkinKoehlerApp::registerObjects(Factory & factory)
+KoalaApp::registerObjects(Factory & factory)
 {
   // Kernels
   registerKernel(Electrostatics);
@@ -67,14 +67,11 @@ FredkinKoehlerApp::registerObjects(Factory & factory)
 
   // BoundaryCondition
   registerBoundaryCondition(CoupledDirichletBC);
-
-  // Transfers
-  registerTransfer(MultiAppAddTransfer);
 }
 
 // External entry point for dynamic syntax association
-extern "C" void FredkinKoehlerApp__associateSyntax(Syntax & syntax, ActionFactory & action_factory) { FredkinKoehlerApp::associateSyntax(syntax, action_factory); }
+extern "C" void KoalaApp__associateSyntax(Syntax & syntax, ActionFactory & action_factory) { KoalaApp::associateSyntax(syntax, action_factory); }
 void
-FredkinKoehlerApp::associateSyntax(Syntax & /*syntax*/, ActionFactory & /*action_factory*/)
+KoalaApp::associateSyntax(Syntax & /*syntax*/, ActionFactory & /*action_factory*/)
 {
 }

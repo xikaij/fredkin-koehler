@@ -2,7 +2,6 @@
 
 // MOOSE headers
 #include "SystemBase.h"
-#include "MooseVariableField.h"
 
 // libMesh headers
 #include "libmesh/equation_systems.h"

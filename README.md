@@ -2,7 +2,7 @@
 
 ### Introduction
 
-Fredkin-Koehler method is a numerical method to compute electrostatic/magnetic potential inside ferroelectric/ferromagnetic bodies. It is a hybrid method that combines finite element and boundary integral methods. The boundary integration in the original method has $O(N^2)$ scaling, where $N$ is number of unknowns in the discretized mesh. The governing equation is shown as follows, (*to view the equations and this manual more clearly, please use the manual.html in [doc](https://github.com/xikaij/fredkin-koehler/tree/master/doc) folder*)
+Fredkin-Koehler method is a numerical method to compute electrostatic/magnetic potential inside ferroelectric/ferromagnetic bodies. It is a hybrid method that combines finite element and boundary integral methods. The boundary integration in the original method has $O(N^2)$ scaling, where $N$ is number of unknowns in the discretized mesh. The governing equation is shown as follows, (*to view the equations and this manual more clearly, please use the manual.html in [doc](https://github.com/xikaij/koala/tree/master/doc) folder*)
 
 $\nabla^2 \phi(\bold{x})=4 \pi \nabla \cdot \bold{M(\bold{x})} \quad$ for $\bold{x}\in R_m$,
 
@@ -34,7 +34,7 @@ Follow instructions on [GettingStarted](http://mooseframework.org/getting-starte
 
 - Download the latest public version
 
-    `git clone https://github.com/xikaij/fredkin-koehler.git`
+    `git clone https://github.com/xikaij/koala.git`
 
 - Compile ScalFMM [CMAKE is required before compiling]
 
@@ -48,15 +48,15 @@ Follow instructions on [GettingStarted](http://mooseframework.org/getting-starte
 
 - Add path to ScalFMM into the Makefile in the top directory. Edit last two `app_INCLUDES` in the Makefile as follows:
  
-    `app_INCLUDES       += -I/your/path/to/fredkin-koehler/contrib/scalfmm/Src`
+    `app_INCLUDES       += -I/your/path/to/koala/contrib/scalfmm/Src`
     
-    `app_INCLUDES       += -I/your/path/to/fredkin-koehler/contrib/scalfmm/build/Src`
+    `app_INCLUDES       += -I/your/path/to/koala/contrib/scalfmm/build/Src`
 
 - Then 'make', in the top directory, to compile the code
 
    `make`
 
-  It will generate the executable `fredkin-koehler-opt` in the top directory.
+  It will generate the executable `koala-opt` in the top directory.
 
 <br>
 
@@ -64,7 +64,7 @@ Follow instructions on [GettingStarted](http://mooseframework.org/getting-starte
 
 An example is provided in the *./tests/unit_sphere* directory. The input files are 
 
-> fredkin-koehler.i
+> koala.i
  
 > poisson.i
 
@@ -72,29 +72,29 @@ An example is provided in the *./tests/unit_sphere* directory. The input files a
 
 and the mesh file is `sphere_tet_approx_size0_05.e`. An unit magnetization density in the x-direction $\bold{M}=$ (1, 0, 0) set as the initial condition. Run the application as
 
-`mpiexec -np NUM_OF_CORES ../../fredkin-koehler-opt -i fredkin-koehler.i`
+`mpiexec -np NUM_OF_CORES ../../koala-opt -i koala.i`
 
 Replace `NUM_OF_CORES` by the total number of cores you want to use.
 
 The output files are as follows, which you could use [Paraview](https://www.paraview.org/) for visualization.
 
-> fredkin-koehler_out.e      (output of the master app, showing $\phi$)
+> koala_out.e      (output of the master app, showing $\phi$)
  
-> fredkin-koehler_out_poisson0.e  (output of the Poisson solver, showing $\phi_1$)
+> koala_out_poisson0.e  (output of the Poisson solver, showing $\phi_1$)
 
-> fredkin-koehler_out_laplace0.e  (output of the Laplace solver, showing $\phi_2$)
+> koala_out_laplace0.e  (output of the Laplace solver, showing $\phi_2$)
 
 ## Machinery
 
-The code uses `MultiApps` functionality in Moose. `fredkin-koehler.i` is the master app, while `poisson.i` and `laplace.i` are subapps.
+The code uses `MultiApps` functionality in Moose. `koala.i` is the master app, while `poisson.i` and `laplace.i` are subapps.
 
-`poisson.i` solves for $\phi_1$, `laplace.i` solves for $\phi_2$, and `fredkin-koehler.i` contains the final potential $\phi$ with $\phi=\phi_1+\phi_2$.
+`poisson.i` solves for $\phi_1$, `laplace.i` solves for $\phi_2$, and `koala.i` contains the final potential $\phi$ with $\phi=\phi_1+\phi_2$.
 
-The code first solves the Poisson equation in `poisson.i` on the volumetric mesh. Then the volumetric solution ($\phi_1$) is transfered from sub_app1 (`poisson.i`) to the master_app (`fredkin-koehler.i`), and is subsequently transfered from master_app (`fredkin-koehler.i`) to sub_app2 (`laplace.i`). The transfers are done using `MultiAppCopyTransfer` in Moose.
+The code first solves the Poisson equation in `poisson.i` on the volumetric mesh. Then the volumetric solution ($\phi_1$) is transfered from sub_app1 (`poisson.i`) to the master_app (`koala.i`), and is subsequently transfered from master_app (`koala.i`) to sub_app2 (`laplace.i`). The transfers are done using `MultiAppCopyTransfer` in Moose.
 
 In `laplace.i`, a boundary mesh is extracted from the volumetric mesh and the boundary mesh is re-partitioned for much better load balancing during boundary integration. The boundary integral is accelerated by a fast multipole method, and results of the integration are assigned on the boundary of the volumetric mesh and serve as Dirichlet boundary condition for a subsequent Laplace solve on the volumetric mesh. The parts for extracting boundary mesh from volumetric mesh, boundary integration, and data transfers between boundary mesh and volumetric mesh is implemented in the `BoundaryIntegralFMM` object, which is derived from `GeneralUserObject` in Moose. 
 
-The solution of the Laplace equation provides $\phi_2$, which is then transfered from sub_app2 (`laplace.i`) to the master_app (`fredkin-koehler.i`) and added upon values of $\phi_1$ in the master_app to get the final potential $\phi$. The solution transfer is done by `MultiAppAddTransfer`, which is borrowed from `MultiAppCopyTransfer`. The only difference between them is that `MultiAppCopyTransfer` uses libMesh function of solution.set(), while `MultiAppAddTransfer` uses solution.add().
+The solution of the Laplace equation provides $\phi_2$, which is then transfered from sub_app2 (`laplace.i`) to the master_app (`koala.i`) and added upon values of $\phi_1$ in the master_app to get the final potential $\phi$. The solution transfer is done by `MultiAppAddTransfer`, which is borrowed from `MultiAppCopyTransfer`. The only difference between them is that `MultiAppCopyTransfer` uses libMesh function of solution.set(), while `MultiAppAddTransfer` uses solution.add().
 
 ## What's next
 Current implementation ONLY supports ferroelectric/ferromagnetic bodies with smooth surfaces (e.g. spheres, or bodies without sharp corners). For modeling cuboidal shaped bodies, special treatments need to be done in the boundary integration part.

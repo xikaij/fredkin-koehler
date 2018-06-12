@@ -129,7 +129,7 @@ The code is open-source and distributed under the GNU GPL license, and may not b
 
 ## Create your own app
 
-"Fork Fredkin-Koehler" to create a new MOOSE-based application.
+"Fork koala" to create a new MOOSE-based application.
 
 For more information see: [http://mooseframework.org/create-an-app/](http://mooseframework.org/create-an-app/)
 

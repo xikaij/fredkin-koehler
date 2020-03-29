@@ -14,8 +14,6 @@
 // BoundaryCondition
 #include "CoupledDirichletBC.h"
 
-// Transfer
-#include "MultiAppAddTransfer.h"
 
 template<>
 InputParameters validParams<KoalaApp>()
